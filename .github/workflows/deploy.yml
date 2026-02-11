@@ -18,7 +18,7 @@ jobs:
       run: |
           whoami
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2_key
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/ec2_key
           chmod 600 ~/.ssh/ec2_key
           ssh-keyscan -H ${{ secrets.AWS_IP }} >> ~/.ssh/known_hosts
 
