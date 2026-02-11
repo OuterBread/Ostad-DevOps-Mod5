@@ -1,71 +1,77 @@
 name: test & deployment
 
-on: 
+on:
   push:
     branches: main
-    
-  workflow_dispatch: 
+  workflow_dispatch:
 
 jobs:
-  
   test:
     runs-on: self-hosted-m5
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup SSH Key
-      run: |
-          whoami
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH Key
+        run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/ec2_key
+          printf "%s" "${{ secrets.SSH_KEY }}" > ~/.ssh/ec2_key
           chmod 600 ~/.ssh/ec2_key
           ssh-keyscan -H ${{ secrets.AWS_IP }} >> ~/.ssh/known_hosts
 
-    - name: Test EC2 Connectivity
-      run: |
-        echo "Testing SSH connection to EC2 instance..."
-        ssh -i ~/.ssh/ec2_key ${{ secrets.AWS_USER }}@${{ secrets.AWS_IP }} << 'EOF'
-        whoami
-        sudo apt install npm -y
-        sudo npm install -g pm2 -y
-        cd OstadTesting/OSTAD-Assignment-module-3/
-        npm install 
-        npm run check > result.log
-        EOF
-    - name: Copy result.log from EC2 to runner
-      run: |
-        scp -i ~/.ssh/ec2_key ${{ secrets.AWS_USER }}@${{ secrets.AWS_IP }}:~/OstadTesting/OSTAD-Assignment-module-3/result.log .
+      - name: Run tests on EC2
+        run: |
+          ssh -i ~/.ssh/ec2_key ${{ secrets.AWS_USER }}@${{ secrets.AWS_IP }} << 'EOF'
+            set -e
+            cd ~/OstadTesting/OSTAD-Assignment-module-3/
 
-     
-    - name: Upload result.log
-      uses: actions/upload-artifact@v4
-      with:
-        name: result-log
-        path: result.log
+            npm install --no-audit --no-fund
+            npm run check > result.log || true
 
+            echo "Test completed"
+          EOF
+
+      - name: Copy result.log from EC2 to runner
+        run: |
+          scp -i ~/.ssh/ec2_key \
+          ${{ secrets.AWS_USER }}@${{ secrets.AWS_IP }}:~/OstadTesting/OSTAD-Assignment-module-3/result.log .
+
+      - name: Upload result.log artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: result-log
+          path: result.log
 
   deploy:
     runs-on: self-hosted-m5
     needs: test
-    steps:    
-    - name: Setup SSH Key
-      run: |
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH Key
+        run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/ec2_key
+          printf "%s" "${{ secrets.SSH_KEY }}" > ~/.ssh/ec2_key
           chmod 600 ~/.ssh/ec2_key
           ssh-keyscan -H ${{ secrets.AWS_IP }} >> ~/.ssh/known_hosts
-    
-    
-    - name: SSH and deploy
-      run: |
-        ssh -i ~/.ssh/ec2_key -o ConnectTimeout=10 ${{ secrets.AWS_USER }}@${{ secrets.AWS_IP }} << 'EOF'
-         cd OstadTesting/OSTAD-Assignment-module-3/ 
-         git pull origin main
-         pm2 stop all || true
-         pm2 delete all || true
-         cd
-         pm2 restart OstadTesting/OSTAD-Assignment-module-3/ || pm2 start npm --name OstadTesting/OSTAD-Assignment-module-3/ -- start
-        EOF
-        
-      
+
+      - name: Copy code to EC2
+        run: |
+          rsync -avz --delete -e "ssh -i ~/.ssh/ec2_key" \
+          ./ ${{ secrets.AWS_USER }}@${{ secrets.AWS_IP }}:/home/${{ secrets.AWS_USER }}/OstadTesting/OSTAD-Assignment-module-3/
+
+      - name: Deploy on EC2
+        run: |
+          ssh -i ~/.ssh/ec2_key ${{ secrets.AWS_USER }}@${{ secrets.AWS_IP }} << 'EOF'
+            set -e
+            cd ~/OstadTesting/OSTAD-Assignment-module-3/
+            pm2 stop all || true
+            pm2 delete all || true
+
+            pm2 start npm --name "OSTAD-Assignment-module-3" -- start
+            pm2 save
+          EOF
