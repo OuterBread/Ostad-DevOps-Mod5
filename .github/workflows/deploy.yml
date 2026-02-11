@@ -45,8 +45,8 @@ jobs:
         path: result.log
         retention-days: 5
 
-    - name: back to runner
-      run: exit
+   ## - name: back to runner
+      ##run: exit
 
   deploy:
     runs-on: self-hosted-m5
