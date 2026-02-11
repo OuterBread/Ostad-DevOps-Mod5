@@ -43,13 +43,20 @@ jobs:
       with:
         name: test-results-log
         path: result.log
-        retention-days: 5 
+        retention-days: 5
+
+    - name: back to runner
+      run: exit
 
   deploy:
     runs-on: self-hosted-m5
     needs: test
     steps:
 
+    - name: Test EC2 Connectivity
+      run: |
+        ssh -i ~/.ssh/ec2_key -o ConnectTimeout=10 ${{ secrets.AWS_USER }}@${{ secrets.AWS_IP }}
+        
     - name: deployment
       run: |
         npm start
