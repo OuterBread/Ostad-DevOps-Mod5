@@ -24,16 +24,10 @@ jobs:
     - name: Test EC2 Connectivity
       run: |
         echo "Testing SSH connection to EC2 instance..."
-        yes | ssh ~/.ssh/ec2_key -o ConnectTimeout=10 ${{ secrets.AWS_USER }}@${{ secrets.AWS_IP }} "echo 'SSH connection successful!'"
-    
-    
-    - name:  Install npm
-      run: |
+        ssh -i ~/.ssh/ec2_key -o ConnectTimeout=10 ${{ secrets.AWS_USER }}@${{ secrets.AWS_IP }} "echo 'SSH connection successful!'" << 'EOF'
+        sudo apt update && apt upgrade
         sudo apt install npm -y
         sudo npm install -g pm2 -y
-        
-    - name: test code
-      run: |
         npm install 
         npm check > result.log
         
@@ -68,10 +62,8 @@ jobs:
     
     - name: Test EC2 Connectivity
       run: |
-       yes | ssh ~/.ssh/ec2_key -o ConnectTimeout=10 ${{ secrets.AWS_USER }}@${{ secrets.AWS_IP }}
-        
-    - name: deployment
-      run: |
+        ssh -i ~/.ssh/ec2_key -o ConnectTimeout=10 ${{ secrets.AWS_USER }}@${{ secrets.AWS_IP }} << 'EOF'
         npm start
+        EOF
         
       
