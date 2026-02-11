@@ -62,7 +62,9 @@ jobs:
         ssh -i ~/.ssh/ec2_key -o ConnectTimeout=10 ${{ secrets.AWS_USER }}@${{ secrets.AWS_IP }} << 'EOF'
          git pull origin main
          npm install --production
-         pm2 restart OstadTesting/OSTAD-Assignment-module-3 || pm2 start npm --name OstadTesting/OSTAD-Assignment-module-3 -- start
+         pm2 stop all || true
+         pm2 delete all || true
+         pm2 restart OstadTesting/OSTAD-Assignment-module-3/ || pm2 start npm --name OstadTesting/OSTAD-Assignment-module-3/ -- start
         EOF
         
       
