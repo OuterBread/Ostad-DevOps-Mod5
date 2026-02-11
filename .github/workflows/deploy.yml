@@ -60,9 +60,11 @@ jobs:
     - name: SSH and deploy
       run: |
         ssh -i ~/.ssh/ec2_key -o ConnectTimeout=10 ${{ secrets.AWS_USER }}@${{ secrets.AWS_IP }} << 'EOF'
+         cd OstadTesting/OSTAD-Assignment-module-3/ 
          git pull origin main
          pm2 stop all || true
          pm2 delete all || true
+         cd
          pm2 restart OstadTesting/OSTAD-Assignment-module-3/ || pm2 start npm --name OstadTesting/OSTAD-Assignment-module-3/ -- start
         EOF
         
