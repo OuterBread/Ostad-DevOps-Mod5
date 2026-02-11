@@ -24,7 +24,7 @@ jobs:
     - name: Test EC2 Connectivity
       run: |
         echo "Testing SSH connection to EC2 instance..."
-        yes | ssh -i ~/.ssh/ec2_key -o ConnectTimeout=10 ${{ secrets.AWS_USER }}@${{ secrets.AWS_IP }} "echo 'SSH connection successful!'"
+        yes | ssh ~/.ssh/ec2_key -o ConnectTimeout=10 ${{ secrets.AWS_USER }}@${{ secrets.AWS_IP }} "echo 'SSH connection successful!'"
     
     
     - name:  Install npm
@@ -68,7 +68,7 @@ jobs:
     
     - name: Test EC2 Connectivity
       run: |
-       yes | ssh -i ~/.ssh/ec2_key -o ConnectTimeout=10 ${{ secrets.AWS_USER }}@${{ secrets.AWS_IP }}
+       yes | ssh ~/.ssh/ec2_key -o ConnectTimeout=10 ${{ secrets.AWS_USER }}@${{ secrets.AWS_IP }}
         
     - name: deployment
       run: |
