@@ -25,7 +25,7 @@ jobs:
     - name: Test EC2 Connectivity
       run: |
         echo "Testing SSH connection to EC2 instance..."
-        ssh -i ~/.ssh/ec2_key -o ConnectTimeout=10 ${{ secrets.AWS_USER }}@${{ secrets.AWS_IP }} << 'EOF'
+        ssh -i ~/.ssh/ec2_key ${{ secrets.AWS_USER }}@${{ secrets.AWS_IP }} << 'EOF'
         whoami
         sudo apt update && apt upgrade -y
         sudo apt install npm -y
