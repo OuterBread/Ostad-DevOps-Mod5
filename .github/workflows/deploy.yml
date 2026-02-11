@@ -31,7 +31,7 @@ jobs:
         sudo npm install -g pm2 -y
         cd OstadTesting/OSTAD-Assignment-module-3/
         npm install 
-        npm check > result.log
+        npm run check > result.log
         EOF
      
    ## - name: back to runner
