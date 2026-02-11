@@ -16,6 +16,7 @@ jobs:
       
     - name: Setup SSH Key
       run: |
+          whoami
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2_key
           chmod 600 ~/.ssh/ec2_key
@@ -24,7 +25,8 @@ jobs:
     - name: Test EC2 Connectivity
       run: |
         echo "Testing SSH connection to EC2 instance..."
-        ssh -i ~/.ssh/ec2_key -o ConnectTimeout=10 ${{ secrets.AWS_USER }}@${{ secrets.AWS_IP }} "echo 'SSH connection successful!'" << 'EOF'
+        ssh -i ~/.ssh/ec2_key -o ConnectTimeout=10 ${{ secrets.AWS_USER }}@${{ secrets.AWS_IP }} << 'EOF'
+        whoami
         sudo apt update && apt upgrade -y
         sudo apt install npm -y
         sudo npm install -g pm2 -y
