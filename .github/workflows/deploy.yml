@@ -12,7 +12,7 @@ jobs:
     runs-on: self-hosted-m5
     steps:
     - name: ssh into the server
-      run:
+      run: |
         ssh ${{ secrets.SSH_KEY }} ${{ secrets.AWS_HOSTNAME }}@${{ secrets.AWS_IP }}
         sudo apt update && apt upgrade -y
         
@@ -20,12 +20,12 @@ jobs:
       uses: [actions/checkout@v4](https://github.com)
       
     - name:  Install npm
-      run: 
+      run: |
         sudo apt install npm -y
         sudo npm install -g pm2 -y
         
     - name: test code
-      run: 
+      run: |
         npm install 
         npm check > result.log
 
@@ -35,7 +35,7 @@ jobs:
     steps:
 
     - name: deployment
-      run:
+      run: |
         npm start
         
       
