@@ -33,9 +33,17 @@ jobs:
         npm install 
         npm run check > result.log
         EOF
+    - name: Copy result.log from EC2 to runner
+      run: |
+        scp -i ~/.ssh/ec2_key ${{ secrets.AWS_USER }}@${{ secrets.AWS_IP }}:~/OstadTesting/OSTAD-Assignment-module-3/result.log .
+
      
-   ## - name: back to runner
-      ##run: exit
+    - name: Upload result.log
+      uses: actions/upload-artifact@v4
+      with:
+        name: result-log
+        path: result.log
+
 
   deploy:
     runs-on: self-hosted-m5
@@ -49,10 +57,12 @@ jobs:
           ssh-keyscan -H ${{ secrets.AWS_IP }} >> ~/.ssh/known_hosts
     
     
-    - name: Test EC2 Connectivity
+    - name: SSH and deploy
       run: |
         ssh -i ~/.ssh/ec2_key -o ConnectTimeout=10 ${{ secrets.AWS_USER }}@${{ secrets.AWS_IP }} << 'EOF'
-        pm2 start npm --name "OSTAD-Assignment-module-3/" -- start
+         git pull origin main
+         npm install --production
+         pm2 restart OSTAD-Assignment-module-3 || pm2 start npm --name OSTAD-Assignment-module-3 -- start
         EOF
         
       
