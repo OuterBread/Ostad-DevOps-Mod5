@@ -15,7 +15,7 @@ jobs:
       run:
         ssh ${{ secrets.SSH_KEY }} ${{ secrets.AWS_HOSTNAME }}@${{ secrets.AWS_IP }}
         sudo apt update && apt upgrade -y
-    
+        
     - name: Checkout code
       uses: [actions/checkout@v4](https://github.com)
       
