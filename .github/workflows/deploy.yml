@@ -1,0 +1,37 @@
+name: test & deployment
+
+on: 
+  push:
+    branches: main
+    
+  workflow_dispatch: 
+
+jobs:
+  
+  test:
+    runs-on: self-hosted-m5
+    steps:
+    
+    - name: Checkout code
+      uses: [actions/checkout@v4](https://github.com)
+      
+    - name:  Install npm
+      run: 
+        sudo apt install npm -y
+        sudo npm install -g pm2 -y
+        
+    - name: test code
+      run: 
+        npm install 
+        npm check > result.log
+
+  deploy:
+    runs-on: self-hosted-m5
+    needs: test
+    steps:
+
+    - name: deployment
+      run:
+        npm start
+        
+      
