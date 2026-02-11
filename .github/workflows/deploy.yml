@@ -30,28 +30,15 @@ jobs:
         sudo npm install -g pm2 -y
         npm install 
         npm check > result.log
-        
-    - name: Upload Test Results
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-results-log
-        path: result.log
-        retention-days: 5
-
+        EOF
+     
    ## - name: back to runner
       ##run: exit
 
   deploy:
     runs-on: self-hosted-m5
     needs: test
-    steps:
-    - name: Download result artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: test-results-log
-        path: ./downloaded-results
-        
+    steps:    
     - name: Setup SSH Key
       run: |
           mkdir -p ~/.ssh
