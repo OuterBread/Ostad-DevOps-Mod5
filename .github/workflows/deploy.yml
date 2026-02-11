@@ -12,7 +12,7 @@ jobs:
     runs-on: self-hosted-m5
     steps:
     - name: Checkout code
-      uses: [actions/checkout@v4](https://github.com)
+      uses: actions/checkout@v4
       
     - name: ssh into the server
       run: |
