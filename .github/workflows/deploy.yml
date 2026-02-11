@@ -24,7 +24,7 @@ jobs:
     - name: Test EC2 Connectivity
       run: |
         echo "Testing SSH connection to EC2 instance..."
-        ssh -i ~/.ssh/ec2_key -o ConnectTimeout=10 ${{ secrets.AWS_USER }}@${{ secrets.AWS_IP }} "echo 'SSH connection successful!'"
+        yes | ssh -i ~/.ssh/ec2_key -o ConnectTimeout=10 ${{ secrets.AWS_USER }}@${{ secrets.AWS_IP }} "echo 'SSH connection successful!'"
     
     
     - name:  Install npm
@@ -52,6 +52,12 @@ jobs:
     runs-on: self-hosted-m5
     needs: test
     steps:
+    - name: Download result artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: test-results-log
+        path: ./downloaded-results
+        
     - name: Setup SSH Key
       run: |
           mkdir -p ~/.ssh
@@ -62,7 +68,7 @@ jobs:
     
     - name: Test EC2 Connectivity
       run: |
-        ssh -i ~/.ssh/ec2_key -o ConnectTimeout=10 ${{ secrets.AWS_USER }}@${{ secrets.AWS_IP }}
+       yes | ssh -i ~/.ssh/ec2_key -o ConnectTimeout=10 ${{ secrets.AWS_USER }}@${{ secrets.AWS_IP }}
         
     - name: deployment
       run: |
