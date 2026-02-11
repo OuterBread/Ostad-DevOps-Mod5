@@ -11,6 +11,10 @@ jobs:
   test:
     runs-on: self-hosted-m5
     steps:
+    - name: ssh into the server
+      run:
+        ssh ${{ secrets.SSH_KEY }} ${{ secrets.AWS_HOSTNAME }}@${{ secrets.AWS_IP }}
+        sudo apt update && apt upgrade -y
     
     - name: Checkout code
       uses: [actions/checkout@v4](https://github.com)
